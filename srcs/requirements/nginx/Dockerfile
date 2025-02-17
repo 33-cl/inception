@@ -8,7 +8,7 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 # Nginx configuration file
-COPY nginx.conf /etc/nginx/nginx.conf
+COPY conf /etc/nginx/nginx.conf
 
 # Expose port 443 as required in the subject
 EXPOSE  443
