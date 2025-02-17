@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  nginx:
+    build:
+      context: requirements/nginx  # Utilise le répertoire courant pour construire l'image
+      dockerfile: Dockerfile  # Spécifie le fichier Dockerfile à utiliser
+    container_name: nginx
+    ports:
+      - "443:443" # Expose le port HTTPS
+    volumes:
+      - ./html:/var/www/html  # Monte le dossier local `html` dans le conteneur
+      - ./certs:/etc/nginx/certs  # Monte le dossier local `certs` avec les certificats TLS
+    networks:
+      - nginx-network
+
+networks:
+  nginx-network:
+    driver: bridge

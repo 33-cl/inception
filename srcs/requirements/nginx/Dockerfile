@@ -1,5 +1,5 @@
 # Use the image of debian 11
-FROM debian:11
+FROM debian:bullseye
 
 # Update apt and install nginx
 RUN apt-get update && \
