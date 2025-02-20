@@ -5,5 +5,12 @@ services:
       dockerfile: Dockerfile
     container_name: nginx
     ports:
-      - "8443:443"
+      - "443:443"
+  mariadb:
+    build:
+      context: requirements/mariadb
+      dockerfile: Dockerfile
+    container_name: mariadb
+    ports:
+      - "3306:3306"
 

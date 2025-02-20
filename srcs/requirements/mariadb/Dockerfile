@@ -1,0 +1,18 @@
+FROM debian:bullseye
+
+RUN apt update -y && apt upgrade -y
+
+RUN apt install mariadb-server -y
+
+COPY conf/50-server.cnf	/etc/mysql/mariadb.conf.d/50-server.cnf
+
+COPY init_db.sh /init_db.sh
+RUN chmod +x /init_db.sh
+
+COPY ../.env /root/.env
+
+RUN /init_db.sh
+
+EXPOSE 3306
+
+CMD ["mysqld_safe"]
