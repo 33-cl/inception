@@ -1,7 +1,14 @@
 #!/bin/bash
 
-# Launch MySQL
-service mysql start;
+# source /root/.env
+
+# Launch MariaDB
+service mariadb start;
+
+# Wait for MariaDB to be ready
+# while ! mysqladmin ping -h localhost --silent; do
+#     sleep 1
+# done
 
 # Create table
 mysql -e "CREATE DATABASE IF NOT EXISTS \`${SQL_DATABASE}\`;"
