@@ -1,28 +1,29 @@
 #!/bin/bash
 
-# source /root/.env
+set -e  # Stop the script on error
 
-# Launch MariaDB
-service mariadb start;
+echo "Starting MariaDB..."
+mysqld_safe &
 
-# Wait for MariaDB to be ready
-# while ! mysqladmin ping -h localhost --silent; do
-#     sleep 1
-# done
+echo "Waiting for MariaDB to start..."
+while ! mysqladmin ping -h localhost -u root -p${SQL_ROOT_PASSWORD} --silent; do
+    sleep 1
+done
 
-# Create table
-mysql -e "CREATE DATABASE IF NOT EXISTS \`${SQL_DATABASE}\`;"
+echo "Creating database '${SQL_DATABASE}'..."
+mysql -u root -p${SQL_ROOT_PASSWORD} -e "CREATE DATABASE IF NOT EXISTS \`${SQL_DATABASE}\`;"
 
-# Create user
-mysql -e "CREATE USER IF NOT EXISTS \`${SQL_USER}\`@'localhost' IDENTIFIED BY '${SQL_PASSWORD}';"
-mysql -e "GRANT ALL PRIVILEGES ON \`${SQL_DATABASE}\`.* TO \`${SQL_USER}\`@'%' IDENTIFIED BY '${SQL_PASSWORD}';"
+echo "Creating user '${SQL_USER}'..."
+mysql -u root -p${SQL_ROOT_PASSWORD} -e "CREATE USER IF NOT EXISTS \`${SQL_USER}\`@'%' IDENTIFIED BY '${SQL_PASSWORD}';"
+mysql -u root -p${SQL_ROOT_PASSWORD} -e "GRANT ALL PRIVILEGES ON \`${SQL_DATABASE}\`.* TO \`${SQL_USER}\`@'%';"
 
-# Change root password
-mysql -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${SQL_ROOT_PASSWORD}';"
+echo "Configuring root password..."
+mysql -u root -p${SQL_ROOT_PASSWORD} -e "ALTER USER 'root'@'localhost' IDENTIFIED BY '${SQL_ROOT_PASSWORD}';"
 
-# Reset privileges
-mysql -e "FLUSH PRIVILEGES;"
+echo "Applying changes..."
+mysql -u root -p${SQL_ROOT_PASSWORD} -e "FLUSH PRIVILEGES;"
 
-# Restart MySQL
-mysqladmin -u root -p${SQL_ROOT_PASSWORD} shutdown
-exec mysqld_safe
+echo "MariaDB is ready."
+
+# Keep MariaDB running
+wait

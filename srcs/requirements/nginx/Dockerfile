@@ -7,8 +7,6 @@ RUN apt install -y nginx
 RUN apt install -y openssl
 RUN mkdir -p /etc/nginx/ssl
 
-# install minishell for
-
 RUN openssl req -x509 -nodes -out /etc/nginx/ssl/inception.crt -keyout /etc/nginx/ssl/inception.key -subj "/C=FR/ST=Rhone/L=Lyon/O=42/OU=42/CN=login.42.fr/UID=login"
 
 RUN chmod 644 /etc/nginx/ssl/inception.crt
