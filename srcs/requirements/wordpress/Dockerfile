@@ -23,4 +23,6 @@ RUN mv wp-cli.phar /usr/local/bin/wp
 
 EXPOSE 9000
 
+RUN mkdir -p /run/php
+
 CMD ["/usr/sbin/php-fpm7.4", "-F"]
