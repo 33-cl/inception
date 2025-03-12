@@ -1,4 +1,3 @@
 .env
 srcs/.env
-srcs/docker-compose.yml
 srcs/requirements/mariadb/.env
