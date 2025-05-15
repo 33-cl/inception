@@ -1,65 +1,65 @@
+version: '3'
+
 services:
   mariadb:
     container_name: mariadb
+    build:
+      context: ./requirements/mariadb
+      dockerfile: Dockerfile
+    volumes:
+      - mariadb_data:/var/lib/mysql
+    env_file:
+      - .env
     networks:
       - inception
+    restart: always
+
+  wordpress:
+    container_name: wordpress
     build:
-      context: requirements/mariadb
+      context: ./requirements/wordpress
       dockerfile: Dockerfile
-    env_file: .env
     volumes:
-      - mariadb:/var/lib/mysql
-    restart: unless-stopped
-    expose:
-      - "3306"
+      - wordpress_data:/var/www/html
+    env_file:
+      - .env
+    networks:
+      - inception
+    depends_on:
+      - mariadb
+    restart: always
 
   nginx:
     container_name: nginx
+    build:
+      context: ./requirements/nginx
+      dockerfile: Dockerfile
     volumes:
-      - wordpress:/var/www/wordpress
+      - wordpress_data:/var/www/html
+    env_file:
+      - .env
+    ports:
+      - "443:443"
     networks:
       - inception
     depends_on:
       - wordpress
-    build:
-      context: requirements/nginx
-      dockerfile: Dockerfile
-    env_file: .env
-    ports:
-      - "443:443"
-    restart: on-failure
-
-  wordpress:
-    container_name: wordpress
-    env_file: .env
-    volumes:
-      - wordpress:/var/www/wordpress
-    networks:
-      - inception
-    build:
-      context: requirements/wordpress
-      dockerfile: Dockerfile
-    depends_on:
-      - mariadb
-    restart: on-failure
-    expose:
-      - "9000"
-
-volumes:
-  wordpress:
-    driver: local
-    driver_opts:
-      type: 'none' 
-      o: 'bind'
-      device: '/home/maeferre/data/wordpress' 
-  mariadb:
-    driver: local
-    driver_opts:
-      type: 'none' 
-      o: 'bind'
-      device: '/home/maeferre/data/mariadb'
+    restart: always
 
 networks:
   inception:
-    name: inception
     driver: bridge
+
+volumes:
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/${USER}/data/wordpress
+      o: bind
+  mariadb_data:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/${USER}/data/mariadb
+      o: bind 

@@ -1,28 +1,38 @@
 FROM debian:bullseye
 
-RUN apt update -y && apt upgrade -y
+# Install required packages
+RUN apt-get update && apt-get install -y \
+    php7.4 \
+    php7.4-fpm \
+    php7.4-mysql \
+    php7.4-json \
+    php7.4-curl \
+    php7.4-mbstring \
+    php7.4-xml \
+    php7.4-zip \
+    php7.4-gd \
+    mariadb-client \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt install -y wget
-RUN apt-get install -y php7.4 php-fpm php-mysql mariadb-client
+# Configure PHP-FPM
+RUN mkdir -p /run/php
+COPY ./conf/www.conf /etc/php/7.4/fpm/pool.d/
 
-# Import wordpress as a tar file
-RUN wget https://fr.wordpress.org/wordpress-6.0-fr_FR.tar.gz -P /var/www
+# Install WP-CLI
+RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar && \
+    chmod +x wp-cli.phar && \
+    mv wp-cli.phar /usr/local/bin/wp
 
-# Extract the tar file
-RUN cd /var/www && tar -xzf wordpress-6.0-fr_FR.tar.gz && rm wordpress-6.0-fr_FR.tar.gz
+# Copy initialization script
+COPY ./tools/init_wordpress.sh /usr/local/bin/
+RUN chmod +x /usr/local/bin/init_wordpress.sh
 
-# Giving root permission to wordpress folder
-RUN	chown -R root:root /var/www/wordpress
-
-COPY conf/www.conf /etc/php/7.4/fpm/pool.d/www.conf
-
-RUN wget https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli.phar
-
-RUN chmod +x wp-cli.phar
-RUN mv wp-cli.phar /usr/local/bin/wp
-
+# Expose port
 EXPOSE 9000
 
-RUN mkdir -p /run/php
+# Set working directory
+WORKDIR /var/www/html
 
-CMD ["/usr/sbin/php-fpm7.4", "-F"]
+# Set entrypoint
+ENTRYPOINT ["/usr/local/bin/init_wordpress.sh"] 

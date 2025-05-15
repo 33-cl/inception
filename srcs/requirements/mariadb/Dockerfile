@@ -1,17 +1,20 @@
 FROM debian:bullseye
 
-RUN apt update -y && apt upgrade -y
+# Install MariaDB
+RUN apt-get update && apt-get install -y \
+    mariadb-server \
+    mariadb-client \
+    && rm -rf /var/lib/apt/lists/*
 
-RUN apt install -y mariadb-server
+# Copy configuration files
+COPY ./conf/50-server.cnf /etc/mysql/mariadb.conf.d/
+COPY ./tools/init_db.sh /tmp/
 
-COPY conf/50-server.cnf	/etc/mysql/mariadb.conf.d/50-server.cnf
-RUN chmod 644 /etc/mysql/mariadb.conf.d/50-server.cnf
+# Set execute permission on the script
+RUN chmod +x /tmp/init_db.sh
 
-COPY init_db.sh /init_db.sh
-RUN chmod +x /init_db.sh
-
+# Expose MariaDB port
 EXPOSE 3306
 
-ENTRYPOINT ["/init_db.sh"]
-
-#CMD ["mysqld_safe"]
+# Set entrypoint
+ENTRYPOINT ["/tmp/init_db.sh"] 
