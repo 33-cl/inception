@@ -5,12 +5,14 @@ RUN apt-get update && apt-get install -y \
     php7.4 \
     php7.4-fpm \
     php7.4-mysql \
-    php7.4-json \
     php7.4-curl \
-    php7.4-mbstring \
-    php7.4-xml \
-    php7.4-zip \
     php7.4-gd \
+    php7.4-intl \
+    php7.4-mbstring \
+    php7.4-soap \
+    php7.4-xml \
+    php7.4-xmlrpc \
+    php7.4-zip \
     mariadb-client \
     curl \
     && rm -rf /var/lib/apt/lists/*
@@ -28,7 +30,11 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
 COPY ./tools/init_wordpress.sh /usr/local/bin/
 RUN chmod +x /usr/local/bin/init_wordpress.sh
 
-# Expose port
+# Create directory structure and set permissions
+RUN mkdir -p /var/www/html && \
+    chown -R www-data:www-data /var/www/html
+
+# Expose port for PHP-FPM
 EXPOSE 9000
 
 # Set working directory

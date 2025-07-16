@@ -28,6 +28,7 @@ services:
     depends_on:
       - mariadb
     restart: always
+    # Expose PHP-FPM only to internal network
 
   nginx:
     container_name: nginx
