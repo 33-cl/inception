@@ -1,3 +1,1 @@
-.env
-srcs/.env
-srcs/requirements/mariadb/.env
+.env .env.example

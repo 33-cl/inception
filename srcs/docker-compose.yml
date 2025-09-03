@@ -1,66 +1,78 @@
-version: '3'
-
 services:
   mariadb:
-    container_name: mariadb
-    build:
-      context: ./requirements/mariadb
+    build: 
+      context: requirements/mariadb
       dockerfile: Dockerfile
+    container_name: mariadb
+    env_file: .env
     volumes:
       - mariadb_data:/var/lib/mysql
-    env_file:
-      - .env
     networks:
-      - inception
-    restart: always
+      - inception_network
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
 
   wordpress:
-    container_name: wordpress
-    build:
-      context: ./requirements/wordpress
+    build: 
+      context: requirements/wordpress
       dockerfile: Dockerfile
+    container_name: wordpress
+    env_file: .env
     volumes:
       - wordpress_data:/var/www/html
-    env_file:
-      - .env
     networks:
-      - inception
+      - inception_network
     depends_on:
       - mariadb
-    restart: always
-    # Expose PHP-FPM only to internal network
+    restart: unless-stopped
+    environment:
+      WORDPRESS_DB_HOST: ${WORDPRESS_DB_HOST}
+      WORDPRESS_DB_NAME: ${WORDPRESS_DB_NAME}
+      WORDPRESS_DB_USER: ${WORDPRESS_DB_USER}
+      WORDPRESS_DB_PASSWORD: ${WORDPRESS_DB_PASSWORD}
+      DOMAIN_NAME: ${DOMAIN_NAME}
+      WORDPRESS_TITLE: ${WORDPRESS_TITLE}
+      WORDPRESS_ADMIN_USER: ${WORDPRESS_ADMIN_USER}
+      WORDPRESS_ADMIN_PASSWORD: ${WORDPRESS_ADMIN_PASSWORD}
+      WORDPRESS_ADMIN_EMAIL: ${WORDPRESS_ADMIN_EMAIL}
+      WORDPRESS_USER: ${WORDPRESS_USER}
+      WORDPRESS_USER_EMAIL: ${WORDPRESS_USER_EMAIL}
+      WORDPRESS_USER_PASSWORD: ${WORDPRESS_USER_PASSWORD}
 
   nginx:
-    container_name: nginx
-    build:
-      context: ./requirements/nginx
+    build: 
+      context: requirements/nginx
       dockerfile: Dockerfile
+    container_name: nginx
+    env_file: .env
     volumes:
       - wordpress_data:/var/www/html
-    env_file:
-      - .env
-    ports:
-      - "443:443"
     networks:
-      - inception
+      - inception_network
     depends_on:
       - wordpress
-    restart: always
-
-networks:
-  inception:
-    driver: bridge
+    ports:
+      - "443:443"
+    restart: unless-stopped
 
 volumes:
-  wordpress_data:
-    driver: local
-    driver_opts:
-      type: none
-      device: /home/${USER}/data/wordpress
-      o: bind
   mariadb_data:
     driver: local
     driver_opts:
       type: none
-      device: /home/${USER}/data/mariadb
-      o: bind 
+      o: bind
+      device: /home/maeferre/data/mariadb
+  wordpress_data:
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /home/maeferre/data/wordpress
+
+networks:
+  inception_network:
+    driver: bridge

@@ -1,23 +1,23 @@
 FROM debian:bullseye
 
-# Install NGINX and OpenSSL
 RUN apt-get update && apt-get install -y \
     nginx \
     openssl \
     && rm -rf /var/lib/apt/lists/*
 
-# Create SSL certificate
-RUN mkdir -p /etc/nginx/ssl
-RUN openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
-    -keyout /etc/nginx/ssl/nginx.key \
-    -out /etc/nginx/ssl/nginx.crt \
-    -subj "/C=FR/ST=Rhone/L=Lyon/O=42/OU=42/CN=maeferre.42.fr"
+# Create SSL certificates
+RUN mkdir -p /etc/ssl/certs /etc/ssl/private && \
+    openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
+    -keyout /etc/ssl/private/maeferre.42.fr.key \
+    -out /etc/ssl/certs/maeferre.42.fr.crt \
+    -subj "/C=FR/ST=France/L=Paris/O=42/CN=maeferre.42.fr"
 
-# Copy NGINX configuration
-COPY ./conf/nginx.conf /etc/nginx/conf.d/default.conf
+# Copy nginx configuration
+COPY conf/nginx.conf /etc/nginx/nginx.conf
 
-# Expose HTTPS port
+# Create log directory
+RUN mkdir -p /var/log/nginx
+
 EXPOSE 443
 
-# Start NGINX in foreground
-CMD ["nginx", "-g", "daemon off;"] 
+CMD ["nginx", "-g", "daemon off;"]

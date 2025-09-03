@@ -1,25 +1,32 @@
+NAME = inception
+
+DOCKER_COMPOSE = docker-compose -f srcs/docker-compose.yml
+
 all: up
 
 up:
-	@mkdir -p /home/$(shell whoami)/data/wordpress
-	@mkdir -p /home/$(shell whoami)/data/mariadb
-	@docker compose -f srcs/docker-compose.yml up -d --build
+	@mkdir -p /home/maeferre/data/mariadb
+	@mkdir -p /home/maeferre/data/wordpress
+	$(DOCKER_COMPOSE) up -d --build
 
 down:
-	@docker compose -f srcs/docker-compose.yml down
-
-restart:
-	@docker compose -f srcs/docker-compose.yml restart
+	$(DOCKER_COMPOSE) down
 
 clean: down
-	@docker system prune -af
-	@docker volume rm -f $$(docker volume ls -q)
-	@sudo rm -rf /home/$(shell whoami)/data/wordpress
-	@sudo rm -rf /home/$(shell whoami)/data/mariadb
+	docker system prune -f
 
 fclean: clean
-	@docker system prune -af --volumes
+	$(DOCKER_COMPOSE) down -v
+	docker system prune -af
+	sudo rm -rf /home/maeferre/data/mariadb/*
+	sudo rm -rf /home/maeferre/data/wordpress/*
 
-re: fclean all
+re: fclean up
 
-.PHONY: all up down restart clean fclean re 
+logs:
+	$(DOCKER_COMPOSE) logs
+
+status:
+	$(DOCKER_COMPOSE) ps
+
+.PHONY: all up down clean fclean re logs status
