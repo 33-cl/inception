@@ -68,16 +68,12 @@ else
     echo "WordPress is already installed!"
 fi
 
-# Create a simple PHP test file
-echo "<?php phpinfo(); ?>" > /var/www/html/info.php
-
 # Set correct permissions
 chown -R www-data:www-data /var/www/html
 find /var/www/html -type d -exec chmod 755 {} \;
 find /var/www/html -type f -exec chmod 644 {} \;
 
 echo "Starting PHP-FPM on port 9000..."
-echo "PHP-FPM will listen on 0.0.0.0:9000"
 
-# Start PHP-FPM in foreground with verbose logging
-exec php-fpm7.4 -F -O
+# Start PHP-FPM in foreground
+exec php-fpm7.4 -F
